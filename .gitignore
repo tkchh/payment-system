@@ -1,0 +1,15 @@
+/bin/
+*.exe
+*.test
+
+/vendor/
+/go.sum
+
+.idea/
+*.iml
+
+*.env
+config/local.yaml
+
+/storage/storage.db
+/storage/storage100k.db
