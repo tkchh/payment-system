@@ -1,3 +1,4 @@
+// Package wallet содержит обработчики HTTP-запросов для работы с кошельками.
 package wallet
 
 import (
@@ -12,11 +13,15 @@ import (
 	"net/http"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.52.3 --name=BalanceReceiver --dir=. --output=./mocks --filename=mock_BalanceReceiver
+// BalanceReceiver определяет интерфейс для получения баланса из хранилища.
+// Генерирует моки через go:generate.
 type BalanceReceiver interface {
 	GetWalletBalance(address string) (models.Wallet, error)
 }
 
+// GetBalance создает HTTP-обработчик для получения баланса кошелька.
+// Извлекает адрес из URL-параметров, обрабатывает ошибки хранилища,
+// возвращает баланс в формате JSON или соответствующие HTTP-ошибки.
 func GetBalance(log *slog.Logger, receiver BalanceReceiver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.wallet.GetBalance"
