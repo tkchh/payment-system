@@ -1,3 +1,4 @@
+// Package transaction содержит обработчики HTTP-запросов для работы с транзакциями.
 package transaction
 
 import (
@@ -12,11 +13,16 @@ import (
 	"net/http"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.52.3 --name=TransactionMaker --dir=. --output=./mocks --filename=mock_TransactionMaker
+// TransactionMaker определяет интерфейс для выполнения транзакций.
+// Генерирует моки через go:generate.
 type TransactionMaker interface {
 	AddTransaction(from, to string, amount float64) error
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.52.3 --name=TransactionMaker --dir=. --output=./mocks --filename=mock_TransactionMaker
+
+// Send создает HTTP-обработчик для выполнения денежных переводов.
+// Принимает JSON с данными транзакции.
 func Send(log *slog.Logger, maker TransactionMaker) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.transaction.Send"

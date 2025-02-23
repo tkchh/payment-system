@@ -1,3 +1,4 @@
+// Package transaction содержит обработчик HTTP-запросов для работы с транзакциями.
 package transaction
 
 import (
@@ -12,11 +13,15 @@ import (
 	"strconv"
 )
 
-//go:generate go run github.com/vektra/mockery/v2@v2.52.3 --name=TransactionsReceiver --dir=. --output=./mocks --filename=mock_TransactionsReceiver
+// TransactionsReceiver определяет интерфейс для получения транзакций из хранилища.
+// Генерирует моки через go:generate
 type TransactionsReceiver interface {
 	GetNTransactions(N int) ([]models.Transaction, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.52.3 --name=TransactionsReceiver --dir=. --output=./mocks --filename=mock_TransactionsReceiver
+
+// GetLast создает HTTP-обработчик для получения последних N транзакций.
 func GetLast(log *slog.Logger, receiver TransactionsReceiver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.transaction.GetLast"

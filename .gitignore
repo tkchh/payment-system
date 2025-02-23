@@ -11,4 +11,3 @@
 *.env
 
 /storage/storage.db
-/storage/storage100k.db

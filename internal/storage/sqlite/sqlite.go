@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+// Storage представляет SQLite-хранилище с подготовленными запросами.
+// Содержит подключение к БД и подготовленные SQL-выражения.
 type Storage struct {
 	db                     *sql.DB
 	stmtSelectWallet       *sql.Stmt
@@ -21,6 +23,8 @@ type Storage struct {
 	stmtSelectTransactions *sql.Stmt
 }
 
+// New инициализирует новое подключение к SQLite.
+// Создает таблицы и индексы при первом запуске.
 func New(storagePath string) (*Storage, error) {
 	const op = "storage.sqlite.New"
 
@@ -82,6 +86,7 @@ func New(storagePath string) (*Storage, error) {
 	}, nil
 }
 
+// checkD автоматически создает 10 кошельки при первом запуске.
 func checkDB(db *sql.DB) error {
 	const op = "storage.sqlite.checkDB"
 
@@ -107,6 +112,8 @@ func checkDB(db *sql.DB) error {
 	return nil
 }
 
+// GetWalletBalance возвращает баланс кошелька по адресу.
+// Возвращает ErrWalletNotFound если кошелек не существует.
 func (s *Storage) GetWalletBalance(address string) (models.Wallet, error) {
 	const op = "storage.sqlite.GetWalletBalance"
 
@@ -124,6 +131,8 @@ func (s *Storage) GetWalletBalance(address string) (models.Wallet, error) {
 	return wallet, nil
 }
 
+// AddTransaction выполняет перевод между кошельками.
+// Проверяет: сумму перевода, разные адреса, достаточный баланс.
 func (s *Storage) AddTransaction(from, to string, amount float64) error {
 	const op = "storage.sqlite.AddTransaction"
 
@@ -187,6 +196,26 @@ func (s *Storage) AddTransaction(from, to string, amount float64) error {
 	return nil
 }
 
+// updateBalance изменяет баланс кошелька атомарно в транзакции.
+// Используется внутри метода AddTransaction
+func (s *Storage) updateBalance(tx *sql.Tx, address string, delta float64) error {
+	const op = "storage.sqlite.updateBalance"
+
+	_, err := tx.Exec(`
+		UPDATE wallets 
+		SET balance = balance + ? 
+		WHERE address = ?
+		`, delta, address)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+// GetNTransactions возвращает N последних транзакций.
+// Транзакции сортируются от новых к старым.
+// При N <= 0 возвращает ErrInvalidRequest.
 func (s *Storage) GetNTransactions(N int) ([]models.Transaction, error) {
 	const op = "storage.sqlite.GetNTransactions"
 
@@ -214,21 +243,8 @@ func (s *Storage) GetNTransactions(N int) ([]models.Transaction, error) {
 	return txs, nil
 }
 
-func (s *Storage) updateBalance(tx *sql.Tx, address string, delta float64) error {
-	const op = "storage.sqlite.updateBalance"
-
-	_, err := tx.Exec(`
-		UPDATE wallets 
-		SET balance = balance + ? 
-		WHERE address = ?
-		`, delta, address)
-	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
-	}
-
-	return nil
-}
-
+// Close Закрывает все подготовленные выражения и соединение.
+// Возвращает объединенные ошибки при их наличии.
 func (s *Storage) Close() error {
 	const op = "storage.sqlite.Close"
 
