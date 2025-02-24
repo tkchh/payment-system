@@ -1,8 +1,6 @@
-# config/local.yaml
-
 env: "local" # local/dev/prod
 storage_path: "./storage/storage.db" #database location
 http_server: #http-server config
-  address: "localhost:8080"
+  address: "0.0.0.0:8080"
   timeout: 4s
   idle_timeout: 30s
