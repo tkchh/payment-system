@@ -19,10 +19,10 @@ type Config struct {
 
 // HTTPServer содержит конфигурационные параметры HTTP-сервера.
 type HTTPServer struct {
-	Address         string        `yaml:"address" env-default:"localhost:8080"` // Адрес сервера (host:port)
-	Timeout         time.Duration `yaml:"timeout" env-default:"4s"`             // Таймаут обработки запросов
-	IdleTimeout     time.Duration `yaml:"idle_timeout" env-default:"60s"`       // Таймаут бездействующих соединений
-	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" env-default:"10s"`   // Таймаут graceful shutdown
+	Address         string        `yaml:"address" env-default:"0.0.0.0:8080"` // Адрес сервера (host:port)
+	Timeout         time.Duration `yaml:"timeout" env-default:"4s"`           // Таймаут обработки запросов
+	IdleTimeout     time.Duration `yaml:"idle_timeout" env-default:"60s"`     // Таймаут бездействующих соединений
+	ShutdownTimeout time.Duration `yaml:"shutdown_timeout" env-default:"10s"` // Таймаут graceful shutdown
 }
 
 // MustLoad загружает конфигурацию из файла и переменных окружения.

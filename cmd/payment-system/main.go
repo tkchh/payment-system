@@ -51,7 +51,7 @@ func main() {
 		}
 	}()
 
-	// Настройка роутера Chi с middleware
+	// Настройка роутера
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID) // Добавляет ID к каждому запросу
 	router.Use(mwLogger.New(logger)) // Логирование запросов
